@@ -3,9 +3,9 @@
         <img src="https://cdn.croct.io/brand/logo/repo-icon-green.svg" alt="Croct" height="80"/>
     </a>
     <br />
-    <strong>Rule Engine JS</strong>
+    <strong>Rule Engine Plugin</strong>
     <br />
-    A rule engine built on top of the <a href="https://github.com/croct-tech/plug-js">Plug JS</a>.
+    A <a href="https://github.com/croct-tech/plug-js">PlugJS</a> plugin for building real-time rule engines.
 </p>
 <p align="center">
     <a href="https://www.npmjs.com/package/@croct/plug-rule-engine"><img alt="Version" src="https://img.shields.io/npm/v/@croct/plug-rule-engine" /></a>
