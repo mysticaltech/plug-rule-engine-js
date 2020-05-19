@@ -25,7 +25,7 @@
 
 The recommended way to install this plugin is using NPM. It pairs nicely with module bundlers such as Rollup, Webpack or Browserify and includes Typescript typings.
 
-Run the following command to install the latest version of the package:
+Run the following command to install the latest version:
 
 ```sh
 npm install @croct/plug-rule-engine
