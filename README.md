@@ -12,7 +12,6 @@
     <a href="https://github.com/croct-tech/plug-js/actions?query=workflow%3AValidations"><img alt="Build" src="https://github.com/croct-tech/plug-rule-engine-js/workflows/Validations/badge.svg" /></a>
     <a href="https://codeclimate.com/repos/5ec316febbe94901a2004112/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/e44b079b623b649bd907/maintainability" /></a>
     <a href="https://codeclimate.com/repos/5ec316febbe94901a2004112/test_coverage"><img alt="Coverage" src="https://api.codeclimate.com/v1/badges/e44b079b623b649bd907/test_coverage" /></a>
-    <a href="https://bundlephobia.com/result?p=@croct/plug-rule-engine"><img alt="Minified + Gzipped Size" src="https://img.shields.io/bundlephobia/minzip/@croct/plug-rule-engine" /></a>
     <br />
     <br />
     <a href="https://github.com/plug-rule-engine/plug-js/releases">📦Releases</a>
@@ -24,7 +23,7 @@
 
 ## Installation
 
-[NPM](https://npmjs.com) is the recommended installation method when building large scale applications with Croct. It pairs nicely with module bundlers such as Webpack or Browserify and includes Typescript typings.
+The recommended way to install this plugin is using NPM. It pairs nicely with module bundlers such as Rollup, Webpack or Browserify and includes Typescript typings.
 
 Run the following command to install the latest version of the package:
 
