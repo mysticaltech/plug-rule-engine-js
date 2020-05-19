@@ -1,12 +1,9 @@
 import {Logger} from '@croct/plug/sdk';
 import {Plugin, PluginSdk} from '@croct/plug/plugin';
-import ObjectType from '@croct/sdk/validation/objectType';
-import MixedSchema from '@croct/sdk/validation/mixedSchema';
-import StringType from '@croct/sdk/validation/stringType';
-import ArrayType from '@croct/sdk/validation/arrayType';
+import {ObjectType, MixedSchema, ArrayType, StringType, describe, formatCause} from '@croct/plug/sdk/validation';
 import {And, Constant, Predicate} from './predicate';
 import {Context, VariableMap} from './context';
-import {Extension, ExtensionFactory} from './extension';
+import {Extension, ExtensionArguments, ExtensionFactory} from './extension';
 import {Rule, RuleSet} from './rule';
 
 interface ExtensionConfigurations {
@@ -210,7 +207,22 @@ export default class RuleEnginePlugin implements Plugin {
                 continue;
             }
 
-            const extension = factory({
+            if (typeof options !== 'boolean' && (options === null || typeof options !== 'object')) {
+                this.logger.error(
+                    `Invalid options for extension "${name}", `
+                    + `expected either boolean or object but got ${describe(options)}`,
+                );
+
+                continue;
+            }
+
+            if (options === false) {
+                this.logger.warn(`Extension "${name}" is declared but not enabled`);
+
+                continue;
+            }
+
+            const args: ExtensionArguments = {
                 options: options,
                 sdk: {
                     tracker: this.sdk.tracker,
@@ -228,7 +240,17 @@ export default class RuleEnginePlugin implements Plugin {
                         return this.sdk.getBrowserStorage(EXTENSION_NAMESPACE, name, ...namespace);
                     },
                 },
-            });
+            };
+
+            let extension;
+
+            try {
+                extension = factory(args);
+            } catch (error) {
+                this.logger.error(`Failed to initialize extension "${name}": ${formatCause(error)}`);
+
+                continue;
+            }
 
             this.extensions.push(extension);
 

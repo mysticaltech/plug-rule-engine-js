@@ -34,10 +34,9 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@croct/plug": "0.2.0-beta.3"
+    "@croct/plug": "0.2.0-beta.6"
   },
   "devDependencies": {
-    "@croct/sdk": "^0.2.0-alpha.4",
     "@types/jest": "^24.0.15",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",

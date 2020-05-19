@@ -1,28 +1,28 @@
 import {PluginSdk} from '@croct/plug/plugin';
-import EvaluatorFacade from '@croct/sdk/facade/evaluatorFacade';
-import TrackerFacade from '@croct/sdk/facade/trackerFacade';
+import {Evaluator} from '@croct/plug/sdk/evaluation';
+import {Tracker} from '@croct/plug/sdk/tracking';
 import {Logger, SessionFacade, Tab, UserFacade} from '@croct/plug/sdk';
 
 export function createPluginSdkMock(): PluginSdk {
     const {
-        default: EvaluatorMock,
-    } = jest.genMockFromModule<{default: {new(): EvaluatorFacade}}>('@croct/sdk/facade/evaluatorFacade');
+        Evaluator: EvaluatorMock,
+    } = jest.genMockFromModule<{Evaluator: {new(): Evaluator}}>('@croct/plug/sdk/evaluation');
 
     const {
-        default: TrackerMock,
-    } = jest.genMockFromModule<{default: {new(): TrackerFacade}}>('@croct/sdk/facade/trackerFacade');
+        Tracker: TrackerMock,
+    } = jest.genMockFromModule<{Tracker: {new(): Tracker}}>('@croct/plug/sdk/tracking');
 
     const {
-        default: SessionFacadeMock,
-    } = jest.genMockFromModule<{default: {new(): SessionFacade}}>('@croct/sdk/facade/sessionFacade');
+        SessionFacade: SessionFacadeMock,
+    } = jest.genMockFromModule<{SessionFacade: {new(): SessionFacade}}>('@croct/plug/sdk');
 
     const {
-        default: UserFacadeMock,
-    } = jest.genMockFromModule<{default: {new(): UserFacade}}>('@croct/sdk/facade/userFacade');
+        UserFacade: UserFacadeMock,
+    } = jest.genMockFromModule<{UserFacade: {new(): UserFacade}}>('@croct/plug/sdk');
 
     const {
-        default: TabMock,
-    } = jest.genMockFromModule<{default: {new(): Tab}}>('@croct/sdk/tab');
+        Tab: TabMock,
+    } = jest.genMockFromModule<{Tab: {new(): Tab}}>('@croct/plug/sdk');
 
     const sdk: PluginSdk = {
         evaluator: new EvaluatorMock(),

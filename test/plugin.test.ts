@@ -1,5 +1,4 @@
-import {PluginSdk} from '@croct/plug/plugin';
-import {Extension} from '../src/extension';
+import {Extension, ExtensionFactory} from '../src/extension';
 import RuleEnginePlugin, {Definitions} from '../src/plugin';
 import {Constant, Variable} from '../src/predicate';
 import {Rule} from '../src/rule';
@@ -55,7 +54,7 @@ describe('A rule engine plugin', () => {
             },
         };
 
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
         const engine = new RuleEnginePlugin(definitions, sdk);
 
         window.history.replaceState({}, 'Home page', '/homepage?foo=bar#anchor');
@@ -130,7 +129,7 @@ describe('A rule engine plugin', () => {
             },
         };
 
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
         const engine = new RuleEnginePlugin(definitions, sdk);
 
         await engine.enable();
@@ -190,7 +189,7 @@ describe('A rule engine plugin', () => {
             },
         };
 
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
         const engine = new RuleEnginePlugin(definitions, sdk);
 
         await engine.enable();
@@ -231,7 +230,7 @@ describe('A rule engine plugin', () => {
             },
         };
 
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
         const engine = new RuleEnginePlugin(definitions, sdk);
 
         window.history.replaceState({}, 'Home page', '/homepage');
@@ -286,7 +285,7 @@ describe('A rule engine plugin', () => {
             },
         };
 
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
         const engine = new RuleEnginePlugin(definitions, sdk);
 
         window.history.replaceState({}, 'Home page', '/homepage');
@@ -300,7 +299,65 @@ describe('A rule engine plugin', () => {
         expect(barExtension.apply).toHaveBeenCalledWith(secondRule, expect.anything());
     });
 
-    test('should enable all registered extensions', async () => {
+    test('should log an error if an extension options is invalid', async () => {
+        const fooExtension: Extension = {
+            enable: jest.fn(),
+        };
+
+        RuleEnginePlugin.extend('foo', () => fooExtension);
+
+        const definitions: Definitions = {
+            extensions: {
+                foo: null,
+            },
+            pages: {},
+        };
+
+        const sdk = createPluginSdkMock();
+        const logger = getLoggerMock();
+
+        sdk.getLogger = jest.fn().mockReturnValue(logger);
+
+        const engine = new RuleEnginePlugin(definitions, sdk);
+
+        await engine.enable();
+
+        expect(fooExtension.enable).not.toHaveBeenCalled();
+
+        expect(logger.error).toBeCalledWith(
+            expect.stringContaining(
+                'Invalid options for extension "foo", expected either boolean or object but got null',
+            ),
+        );
+    });
+
+    test('should log failures initializing plugins', async () => {
+        RuleEnginePlugin.extend('foo', () => {
+            throw new Error('failure');
+        });
+
+        const definitions: Definitions = {
+            extensions: {
+                foo: true,
+            },
+            pages: {},
+        };
+
+        const sdk = createPluginSdkMock();
+        const logger = getLoggerMock();
+
+        sdk.getLogger = jest.fn().mockReturnValue(logger);
+
+        const engine = new RuleEnginePlugin(definitions, sdk);
+
+        await engine.enable();
+
+        expect(logger.error).toBeCalledWith(
+            expect.stringContaining('Failed to initialize extension "foo": failure'),
+        );
+    });
+
+    test('should not initialize disabled extensions', async () => {
         const fooExtension: Extension = {
             enable: jest.fn(),
         };
@@ -314,16 +371,59 @@ describe('A rule engine plugin', () => {
 
         const definitions: Definitions = {
             extensions: {
-                foo: true,
+                foo: false,
                 bar: true,
             },
             pages: {},
         };
 
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
+        const logger = getLoggerMock();
+
+        sdk.getLogger = jest.fn().mockReturnValue(logger);
+
         const engine = new RuleEnginePlugin(definitions, sdk);
 
         await engine.enable();
+
+        expect(fooExtension.enable).not.toHaveBeenCalled();
+        expect(barExtension.enable).toHaveBeenCalled();
+
+        expect(logger.warn).toBeCalledWith(
+            expect.stringContaining('Extension "foo" is declared but not enabled'),
+        );
+    });
+
+    test('should initialize all declared extensions', async () => {
+        const fooExtension: Extension = {
+            enable: jest.fn(),
+        };
+
+        const barExtension: Extension = {
+            enable: jest.fn().mockReturnValue(Promise.resolve()),
+        };
+
+        const fooFactory: ExtensionFactory = jest.fn().mockImplementation(() => fooExtension);
+        const barFactory: ExtensionFactory = jest.fn().mockImplementation(() => barExtension);
+
+        RuleEnginePlugin.extend('foo', fooFactory);
+        RuleEnginePlugin.extend('bar', barFactory);
+
+        const definitions: Definitions = {
+            extensions: {
+                foo: {},
+                bar: {flag: true},
+            },
+            pages: {},
+        };
+
+        const sdk = createPluginSdkMock();
+        const engine = new RuleEnginePlugin(definitions, sdk);
+
+        await engine.enable();
+
+        expect(fooFactory).toBeCalledWith(expect.objectContaining({options: {}}));
+        expect(barFactory).toBeCalledWith(expect.objectContaining({options: {flag: true}}));
 
         expect(fooExtension.enable).toHaveBeenCalled();
         expect(barExtension.enable).toHaveBeenCalled();
@@ -353,7 +453,7 @@ describe('A rule engine plugin', () => {
             pages: {},
         };
 
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
         const engine = new RuleEnginePlugin(definitions, sdk);
 
         await engine.disable();
@@ -363,7 +463,7 @@ describe('A rule engine plugin', () => {
     });
 
     test('should instantiate an isolated SDK for each extension', async () => {
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
 
         sdk.getLogger = jest.fn().mockReturnValue(getLoggerMock());
         sdk.getBrowserStorage = jest.fn().mockReturnValue(window.localStorage);
@@ -418,7 +518,7 @@ describe('A rule engine plugin', () => {
             pages: {},
         };
 
-        const sdk: PluginSdk = createPluginSdkMock();
+        const sdk = createPluginSdkMock();
         const engine = new RuleEnginePlugin(definitions, sdk);
 
         await engine.enable();

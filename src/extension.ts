@@ -3,7 +3,7 @@ import {Context, VariableMap} from './context';
 import {Predicate} from './predicate';
 import {Rule} from './rule';
 
-export type ExtensionArguments<T> = {
+export type ExtensionArguments<T = any> = {
     options: T,
     sdk: PluginSdk,
 }
