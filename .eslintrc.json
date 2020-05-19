@@ -19,6 +19,7 @@
   "env": {
     "browser": true
   },
+  "ignorePatterns": ["build/*"],
   "rules": {
     "@typescript-eslint/explicit-member-accessibility": ["error"],
     "@typescript-eslint/member-delimiter-style": ["error", {
@@ -43,11 +44,13 @@
     }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-use-before-define": "off",
+    "arrow-body-style": "off",
     "arrow-parens": ["error", "as-needed"],
     "class-methods-use-this": "off",
     "consistent-return": "off",
     "default-case": "off",
     "import/extensions": ["error", "never"],
+    "import/no-unresolved": "off",
     "import/prefer-default-export": "off",
     "indent": ["error", 4, {"SwitchCase": 1}],
     "linebreak-style": ["error", "unix"],
