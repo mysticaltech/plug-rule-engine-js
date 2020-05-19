@@ -9,16 +9,16 @@
 </p>
 <p align="center">
     <a href="https://www.npmjs.com/package/@croct/plug-rule-engine"><img alt="Version" src="https://img.shields.io/npm/v/@croct/plug-rule-engine" /></a>
-    <a href="https://github.com/croct-tech/plug-js/actions?query=workflow%3AValidations"><img alt="Build" src="https://github.com/croct-tech/plug-rule-engine-js/workflows/Validations/badge.svg" /></a>
+    <a href="https://github.com/croct-tech/plug-rule-engine-js/actions?query=workflow%3AValidations"><img alt="Build" src="https://github.com/croct-tech/plug-rule-engine-js/workflows/Validations/badge.svg" /></a>
     <a href="https://codeclimate.com/repos/5ec316febbe94901a2004112/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/e44b079b623b649bd907/maintainability" /></a>
     <a href="https://codeclimate.com/repos/5ec316febbe94901a2004112/test_coverage"><img alt="Coverage" src="https://api.codeclimate.com/v1/badges/e44b079b623b649bd907/test_coverage" /></a>
     <br />
     <br />
-    <a href="https://github.com/plug-rule-engine/plug-js/releases">📦Releases</a>
+    <a href="https://github.com/croct-tech/plug-rule-engine-js/releases">📦Releases</a>
     ·
-    <a href="https://github.com/plug-rule-engine/plug-js/issues/new?labels=bug&template=bug-report.md">🐞Report Bug</a>
+    <a href="https://github.com/croct-tech/plug-rule-engine-js/issues/new?labels=bug&template=bug-report.md">🐞Report Bug</a>
     ·
-    <a href="https://github.com/plug-rule-engine/plug-js/issues/new?labels=enhancement&template=feature-request.md">✨Request Feature</a>
+    <a href="https://github.com/croct-tech/plug-rule-engine-js/issues/new?labels=enhancement&template=feature-request.md">✨Request Feature</a>
 </p>
 
 ## Installation
