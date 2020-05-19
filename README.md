@@ -35,7 +35,7 @@ npm install @croct/plug-rule-engine
 
 ```typescript
 import croct from '@croct/plug';
-// Registers the extension plugin
+// Install the plugin
 import '@croct/plug-rule-engine';
 
 croct.plug({
