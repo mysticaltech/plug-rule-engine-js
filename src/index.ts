@@ -1,5 +1,5 @@
 import croct from '@croct/plug';
-import {Definitions, RuleEnginePlugin} from './plugin';
+import RuleEnginePlugin, {Definitions, definitionsSchema} from './plugin';
 
 declare module '@croct/plug/plug' {
     export interface PluginConfigurations {
@@ -7,4 +7,8 @@ declare module '@croct/plug/plug' {
     }
 }
 
-croct.extend('rules', ({options, sdk}) => new RuleEnginePlugin(options, sdk));
+croct.extend('rules', ({options, sdk}) => {
+    definitionsSchema.validate(options);
+
+    return new RuleEnginePlugin(options, sdk);
+});

@@ -1,5 +1,9 @@
 import {Logger} from '@croct/plug/sdk';
 import {Plugin, PluginSdk} from '@croct/plug/plugin';
+import ObjectType from '@croct/sdk/validation/objectType';
+import MixedSchema from '@croct/sdk/validation/mixedSchema';
+import StringType from '@croct/sdk/validation/stringType';
+import ArrayType from '@croct/sdk/validation/arrayType';
 import {And, Constant, Predicate} from './predicate';
 import {Context, VariableMap} from './context';
 import {Extension, ExtensionFactory} from './extension';
@@ -14,9 +18,48 @@ export type Definitions = {
     pages: {[key: string]: RuleSet[]},
 }
 
+const ruleSchema = new ObjectType({
+    required: ['name', 'properties'],
+    properties: {
+        name: new StringType({
+            minLength: 1,
+        }),
+        properties: new ObjectType({
+            additionalProperties: new MixedSchema(),
+        }),
+    },
+});
+
+const ruleSetSchema = new ObjectType({
+    required: ['rules'],
+    properties: {
+        rules: new ArrayType({
+            items: ruleSchema,
+        }),
+    },
+});
+
+const extensionsSchema = new ObjectType({
+    additionalProperties: new MixedSchema(),
+});
+
+const pagesSchema = new ObjectType({
+    additionalProperties: new ArrayType({
+        items: ruleSetSchema,
+    }),
+});
+
+export const definitionsSchema = new ObjectType({
+    required: ['extensions', 'pages'],
+    properties: {
+        extensions: extensionsSchema,
+        pages: pagesSchema,
+    },
+});
+
 const EXTENSION_NAMESPACE = 'extension';
 
-export class RuleEnginePlugin implements Plugin {
+export default class RuleEnginePlugin implements Plugin {
     private static extensionRegistry: {[key: string]: ExtensionFactory} = {};
 
     private readonly definitions: Definitions;
