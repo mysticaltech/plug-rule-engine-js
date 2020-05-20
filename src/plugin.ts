@@ -37,7 +37,7 @@ const ruleSetSchema = new ObjectType({
 });
 
 const extensionsSchema = new ObjectType({
-    additionalProperties: new MixedSchema(),
+    additionalProperties: true,
 });
 
 const pagesSchema = new ObjectType({
