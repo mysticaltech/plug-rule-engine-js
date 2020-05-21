@@ -198,7 +198,7 @@ describe('A rule engine plugin installer', () => {
             },
             "Expected at least 1 character at path '/pages/home/0/rules/0/name', actual 0.",
         ],
-    ])('should reject options %p', (definitions: any, error: string) => {
+    ])('should not allow %p', (definitions: any, error: string) => {
         const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];
 
         function create(): void {
@@ -206,5 +206,43 @@ describe('A rule engine plugin installer', () => {
         }
 
         expect(create).toThrow(error);
+    });
+
+    test.each<[any]>([
+        [
+            {
+                extensions: {},
+                pages: {},
+            },
+        ],
+        [
+            {
+                extensions: {
+                    foo: 'bar',
+                },
+                pages: {
+                    home: [
+                        {
+                            rules: [
+                                {
+                                    name: 'firstRule',
+                                    properties: {
+                                        someProperty: 'someValue',
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            },
+        ],
+    ])('should allow %p', (definitions: any) => {
+        const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];
+
+        function create(): void {
+            factory({options: definitions, sdk: createPluginSdkMock()});
+        }
+
+        expect(create).not.toThrowError();
     });
 });
