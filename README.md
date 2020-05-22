@@ -38,7 +38,6 @@ import croct from '@croct/plug';
 import '@croct/plug-rule-engine';
 
 croct.plug({
-    appId: '<APP_ID>',
     plugins: {
         ruleEngine: {
             extensions: [],
