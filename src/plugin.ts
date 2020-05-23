@@ -6,7 +6,7 @@ import {Context, VariableMap} from './context';
 import {Extension, ExtensionArguments, ExtensionFactory} from './extension';
 import {Rule, RuleSet} from './rule';
 
-interface ExtensionConfigurations {
+export interface ExtensionConfigurations {
     [key: string]: any;
 }
 
