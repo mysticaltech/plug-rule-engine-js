@@ -3,7 +3,7 @@ import RuleEnginePlugin, {Definitions, definitionsSchema} from './plugin';
 
 declare module '@croct/plug/plug' {
     export interface PluginConfigurations {
-        rules?: Definitions;
+        rules?: Definitions | false;
     }
 }
 
