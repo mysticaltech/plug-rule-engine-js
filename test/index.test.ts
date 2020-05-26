@@ -1,13 +1,14 @@
 import croct from '@croct/plug';
-import '../src/index';
 import {PluginFactory, PluginSdk} from '@croct/plug/plugin';
 import {createPluginSdkMock} from './mocks';
 import RuleEnginePlugin, {Definitions} from '../src/plugin';
+import '../src/index';
 
 jest.mock('@croct/plug', () => ({
     default: {
         extend: jest.fn(),
     },
+    __esModule: true,
 }));
 
 jest.mock('../src/plugin', () => {
@@ -16,6 +17,7 @@ jest.mock('../src/plugin', () => {
     return {
         ...actual,
         default: jest.fn(),
+        __esModule: true,
     };
 });
 
