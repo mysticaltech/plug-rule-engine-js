@@ -245,7 +245,7 @@ export default class RuleEnginePlugin implements Plugin {
             }
 
             const args: ExtensionArguments = {
-                options: options,
+                options: options === true ? {} : options,
                 sdk: {
                     tracker: this.sdk.tracker,
                     evaluator: this.sdk.evaluator,
