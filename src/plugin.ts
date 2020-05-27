@@ -1,6 +1,14 @@
 import {Logger} from '@croct/plug/sdk';
 import {Plugin, PluginSdk} from '@croct/plug/plugin';
-import {ObjectType, MixedSchema, ArrayType, StringType, describe, formatCause} from '@croct/plug/sdk/validation';
+import {
+    ObjectType,
+    MixedSchema,
+    ArrayType,
+    BooleanType,
+    StringType,
+    describe,
+    formatCause,
+} from '@croct/plug/sdk/validation';
 import {And, Constant, Predicate} from './predicate';
 import {Context, VariableMap} from './context';
 import {Extension, ExtensionArguments, ExtensionFactory} from './extension';
@@ -10,8 +18,9 @@ export interface ExtensionConfigurations {
     [key: string]: any;
 }
 
-export type Definitions = {
+export type Options = {
     extensions: ExtensionConfigurations,
+    onPageLoad?: boolean,
     pages: {[key: string]: RuleSet[]},
 }
 
@@ -46,10 +55,11 @@ const pagesSchema = new ObjectType({
     }),
 });
 
-export const definitionsSchema = new ObjectType({
+export const optionsSchema = new ObjectType({
     required: ['extensions', 'pages'],
     properties: {
         extensions: extensionsSchema,
+        onPageLoad: new BooleanType(),
         pages: pagesSchema,
     },
 });
@@ -59,7 +69,7 @@ const EXTENSION_NAMESPACE = 'extension';
 export default class RuleEnginePlugin implements Plugin {
     private static extensionRegistry: {[key: string]: ExtensionFactory} = {};
 
-    private readonly definitions: Definitions;
+    private readonly options: Options;
 
     private readonly sdk: PluginSdk;
 
@@ -67,8 +77,8 @@ export default class RuleEnginePlugin implements Plugin {
 
     private extensions?: Extension[];
 
-    public constructor(definitions: Definitions, sdk: PluginSdk) {
-        this.definitions = definitions;
+    public constructor(options: Options, sdk: PluginSdk) {
+        this.options = options;
         this.sdk = sdk;
         this.logger = sdk.getLogger();
     }
@@ -77,7 +87,19 @@ export default class RuleEnginePlugin implements Plugin {
         RuleEnginePlugin.extensionRegistry[name] = expression;
     }
 
-    public async enable(): Promise<void> {
+    public enable(): Promise<void> {
+        const {onPageLoad} = this.options;
+
+        if (!onPageLoad || window.document.readyState !== 'loading') {
+            return this.run();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => this.run());
+
+        return Promise.resolve();
+    }
+
+    private async run(): Promise<void> {
         const {location} = this.sdk.tab;
         const path = location.pathname + location.search + location.hash;
 
@@ -100,7 +122,7 @@ export default class RuleEnginePlugin implements Plugin {
 
         const context = this.createContext();
 
-        for (const [pattern, ruleSet] of Object.entries(this.definitions.pages)) {
+        for (const [pattern, ruleSet] of Object.entries(this.options.pages)) {
             if (!(new RegExp(pattern).test(path))) {
                 continue;
             }
@@ -198,7 +220,7 @@ export default class RuleEnginePlugin implements Plugin {
         }
 
         this.extensions = [];
-        for (const [name, options] of Object.entries(this.definitions.extensions)) {
+        for (const [name, options] of Object.entries(this.options.extensions)) {
             const factory = RuleEnginePlugin.extensionRegistry[name];
 
             if (factory === undefined) {

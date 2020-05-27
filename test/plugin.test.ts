@@ -1,5 +1,5 @@
 import {Extension, ExtensionFactory} from '../src/extension';
-import RuleEnginePlugin, {Definitions} from '../src/plugin';
+import RuleEnginePlugin, {Options} from '../src/plugin';
 import {Constant, Variable} from '../src/predicate';
 import {Rule} from '../src/rule';
 import {createPluginSdkMock, getLoggerMock} from './mocks';
@@ -28,7 +28,7 @@ describe('A rule engine plugin', () => {
         const thirdRule: Rule = {name: 'thirdRule', properties: {}};
         const fourthRule: Rule = {name: 'fourthRule', properties: {}};
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
             },
@@ -55,7 +55,7 @@ describe('A rule engine plugin', () => {
         };
 
         const sdk = createPluginSdkMock();
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         window.history.replaceState({}, 'Home page', '/homepage?foo=bar#anchor');
 
@@ -113,7 +113,7 @@ describe('A rule engine plugin', () => {
 
         const rule: Rule = {name: 'rule', properties: {}};
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
                 bar: true,
@@ -130,7 +130,7 @@ describe('A rule engine plugin', () => {
         };
 
         const sdk = createPluginSdkMock();
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.enable();
         await engine.disable();
@@ -156,6 +156,82 @@ describe('A rule engine plugin', () => {
         expect(fooExtension.disable).toHaveBeenCalledBefore(bazExtension.disable as jest.Mock);
     });
 
+    test('should wait for page to load if option onPageLoad is true', async () => {
+        const fooExtension: Extension = {
+            enable: jest.fn(),
+        };
+
+        RuleEnginePlugin.extend('foo', () => fooExtension);
+
+        const rule: Rule = {name: 'rule', properties: {}};
+
+        const options: Options = {
+            extensions: {
+                foo: true,
+            },
+            onPageLoad: true,
+            pages: {
+                '/': [
+                    {
+                        rules: [rule],
+                    },
+                ],
+            },
+        };
+
+        const sdk = createPluginSdkMock();
+        const engine = new RuleEnginePlugin(options, sdk);
+
+        Object.defineProperty(document, 'readyState', {
+            configurable: true,
+            get: () => 'loading',
+        });
+
+        await engine.enable();
+
+        expect(fooExtension.enable).not.toHaveBeenCalled();
+
+        window.dispatchEvent(new Event('DOMContentLoaded', {bubbles: true, cancelable: true}));
+
+        expect(fooExtension.enable).toHaveBeenCalled();
+    });
+
+    test('should run immediately if page is ready', async () => {
+        const fooExtension: Extension = {
+            enable: jest.fn(),
+        };
+
+        RuleEnginePlugin.extend('foo', () => fooExtension);
+
+        const rule: Rule = {name: 'rule', properties: {}};
+
+        const options: Options = {
+            extensions: {
+                foo: true,
+            },
+            onPageLoad: true,
+            pages: {
+                '/': [
+                    {
+                        rules: [rule],
+                    },
+                ],
+            },
+        };
+
+        const sdk = createPluginSdkMock();
+        const engine = new RuleEnginePlugin(options, sdk);
+
+        Object.defineProperty(document, 'readyState', {
+            configurable: true,
+            get: () => 'complete',
+        });
+
+        await engine.enable();
+
+        expect(fooExtension.enable).toHaveBeenCalled();
+    });
+
     test('should apply rules which the predicate is satisfied', async () => {
         const fooExtension: Extension = {
             apply: jest.fn(),
@@ -173,7 +249,7 @@ describe('A rule engine plugin', () => {
         const firstRule: Rule = {name: 'firstRule', properties: {}};
         const secondRule: Rule = {name: 'secondRule', properties: {}};
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
             },
@@ -190,7 +266,7 @@ describe('A rule engine plugin', () => {
         };
 
         const sdk = createPluginSdkMock();
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.enable();
 
@@ -217,7 +293,7 @@ describe('A rule engine plugin', () => {
         const secondRule: Rule = {name: 'secondRule', properties: {}};
         const thirdRule: Rule = {name: 'thirdRule', properties: {}};
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
             },
@@ -231,7 +307,7 @@ describe('A rule engine plugin', () => {
         };
 
         const sdk = createPluginSdkMock();
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         window.history.replaceState({}, 'Home page', '/homepage');
 
@@ -268,7 +344,7 @@ describe('A rule engine plugin', () => {
         const firstRule: Rule = {name: 'firstRule', properties: {}};
         const secondRule: Rule = {name: 'firstRule', properties: {}};
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
                 bar: true,
@@ -286,7 +362,7 @@ describe('A rule engine plugin', () => {
         };
 
         const sdk = createPluginSdkMock();
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         window.history.replaceState({}, 'Home page', '/homepage');
 
@@ -306,7 +382,7 @@ describe('A rule engine plugin', () => {
 
         RuleEnginePlugin.extend('foo', () => fooExtension);
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: null,
             },
@@ -318,7 +394,7 @@ describe('A rule engine plugin', () => {
 
         sdk.getLogger = jest.fn().mockReturnValue(logger);
 
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.enable();
 
@@ -336,7 +412,7 @@ describe('A rule engine plugin', () => {
             throw new Error('failure');
         });
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
             },
@@ -348,7 +424,7 @@ describe('A rule engine plugin', () => {
 
         sdk.getLogger = jest.fn().mockReturnValue(logger);
 
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.enable();
 
@@ -369,7 +445,7 @@ describe('A rule engine plugin', () => {
         RuleEnginePlugin.extend('foo', () => fooExtension);
         RuleEnginePlugin.extend('bar', () => barExtension);
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: false,
                 bar: true,
@@ -382,7 +458,7 @@ describe('A rule engine plugin', () => {
 
         sdk.getLogger = jest.fn().mockReturnValue(logger);
 
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.enable();
 
@@ -409,7 +485,7 @@ describe('A rule engine plugin', () => {
         RuleEnginePlugin.extend('foo', fooFactory);
         RuleEnginePlugin.extend('bar', barFactory);
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: {},
                 bar: {flag: true},
@@ -418,7 +494,7 @@ describe('A rule engine plugin', () => {
         };
 
         const sdk = createPluginSdkMock();
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.enable();
 
@@ -444,7 +520,7 @@ describe('A rule engine plugin', () => {
         RuleEnginePlugin.extend('bar', () => barExtension);
         RuleEnginePlugin.extend('baz', () => bazExtension);
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
                 bar: true,
@@ -454,7 +530,7 @@ describe('A rule engine plugin', () => {
         };
 
         const sdk = createPluginSdkMock();
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.disable();
 
@@ -487,7 +563,7 @@ describe('A rule engine plugin', () => {
 
         RuleEnginePlugin.extend('foo', fooExtension);
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
             },
@@ -500,7 +576,7 @@ describe('A rule engine plugin', () => {
             },
         };
 
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.enable();
 
@@ -511,7 +587,7 @@ describe('A rule engine plugin', () => {
     });
 
     test('should log an error message if a registered extension is unknown', async () => {
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
             },
@@ -519,7 +595,7 @@ describe('A rule engine plugin', () => {
         };
 
         const sdk = createPluginSdkMock();
-        const engine = new RuleEnginePlugin(definitions, sdk);
+        const engine = new RuleEnginePlugin(options, sdk);
 
         await engine.enable();
 

@@ -1,7 +1,7 @@
 import croct from '@croct/plug';
 import {PluginFactory, PluginSdk} from '@croct/plug/plugin';
 import {createPluginSdkMock} from './mocks';
-import RuleEnginePlugin, {Definitions} from '../src/plugin';
+import RuleEnginePlugin, {Options} from '../src/plugin';
 import '../src/index';
 
 jest.mock('@croct/plug', () => ({
@@ -29,11 +29,12 @@ describe('A rule engine plugin installer', () => {
 
         const sdk: PluginSdk = createPluginSdkMock();
 
-        const definitions: Definitions = {
+        const options: Options = {
             extensions: {
                 foo: true,
                 bar: false,
             },
+            onPageLoad: true,
             pages: {
                 home: [
                     {
@@ -50,10 +51,10 @@ describe('A rule engine plugin installer', () => {
             },
         };
 
-        factory({options: definitions, sdk: sdk});
+        factory({options: options, sdk: sdk});
 
         expect(RuleEnginePlugin).toBeCalledTimes(1);
-        expect(RuleEnginePlugin).toBeCalledWith(definitions, sdk);
+        expect(RuleEnginePlugin).toBeCalledWith(options, sdk);
     });
 
     test.each<[any, string]>([
@@ -200,11 +201,19 @@ describe('A rule engine plugin installer', () => {
             },
             "Expected at least 1 character at path '/pages/home/0/rules/0/name', actual 0.",
         ],
-    ])('should not allow %p', (definitions: any, error: string) => {
+        [
+            {
+                extensions: {},
+                pages: {},
+                onPageLoad: null,
+            },
+            "Expected value of type boolean at path '/onPageLoad', actual null.",
+        ],
+    ])('should not allow %p', (options: any, error: string) => {
         const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];
 
         function create(): void {
-            factory({options: definitions, sdk: createPluginSdkMock()});
+            factory({options: options, sdk: createPluginSdkMock()});
         }
 
         expect(create).toThrow(error);
@@ -222,6 +231,7 @@ describe('A rule engine plugin installer', () => {
                 extensions: {
                     foo: 'bar',
                 },
+                onPageLoad: true,
                 pages: {
                     home: [
                         {
@@ -238,11 +248,11 @@ describe('A rule engine plugin installer', () => {
                 },
             },
         ],
-    ])('should allow %p', (definitions: any) => {
+    ])('should allow %p', (options: any) => {
         const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];
 
         function create(): void {
-            factory({options: definitions, sdk: createPluginSdkMock()});
+            factory({options: options, sdk: createPluginSdkMock()});
         }
 
         expect(create).not.toThrowError();
