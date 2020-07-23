@@ -6,11 +6,11 @@ import {Rule} from './rule';
 export type ExtensionArguments<T = any> = {
     options: T,
     sdk: PluginSdk,
-}
+};
 
 export type ExtensionFactory<T = any> = {
     (args: ExtensionArguments<T>): Extension,
-}
+};
 
 export interface Extension {
     enable?(path: string): Promise<void> | void;

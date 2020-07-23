@@ -22,7 +22,7 @@ export type Options = {
     extensions: ExtensionConfigurations,
     onPageLoad?: boolean,
     pages: {[key: string]: RuleSet[]},
-}
+};
 
 const ruleSchema = new ObjectType({
     required: ['name', 'properties'],

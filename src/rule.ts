@@ -5,8 +5,8 @@ export interface RuleProperties {
 export type Rule = {
     name: string,
     properties: RuleProperties,
-}
+};
 
 export type RuleSet = {
     rules: Rule[],
-}
+};
